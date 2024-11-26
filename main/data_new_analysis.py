@@ -43,3 +43,21 @@ fig2.add_vline(x=vendas_data['Valor'].median(), line_dash="dot", line_color="gre
 fig2.update_layout(yaxis_title="Frequência", hovermode="x unified")
 fig2.write_html(os.path.join(output_dir, "distribuicao_valores_interativo.html"))
 
+# 4. Gráfico de Colunas - Vendas por Mês
+vendas_data['AnoMes'] = vendas_data['Data'].dt.to_period('M')  # Extrair mês e ano
+vendas_por_mes = vendas_data.groupby('AnoMes').agg({'Valor': 'sum'}).reset_index()
+vendas_por_mes['AnoMes'] = vendas_por_mes['AnoMes'].astype(str)  # Converter para string para exibir no gráfico
+
+fig3 = px.bar(vendas_por_mes, x='AnoMes', y='Valor', 
+              title="Total de Vendas por Mês",
+              labels={'AnoMes': 'Mês', 'Valor': 'Valor das Vendas'},
+              text_auto='.2s',
+              color='Valor',
+              color_continuous_scale=px.colors.sequential.Blues)
+fig3.update_traces(textfont_size=12, textangle=0, textposition="outside", cliponaxis=False)
+fig3.add_scatter(x=vendas_por_mes['AnoMes'], y=vendas_por_mes['Valor'], mode='lines', 
+                 line=dict(color='red', dash='dash'), name='Linha de Tendência')
+fig3.update_layout(xaxis_tickangle=-45, hovermode="x unified")
+fig3.write_html(os.path.join(output_dir, "vendas_por_mes_interativo.html"))
+
+print(f"Gráficos interativos salvos na pasta: {output_dir}")
